@@ -35,16 +35,14 @@ export async function logAction(action, details = "") {
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   currentUserRole = null;
-  if (user) {
-    try {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists()) currentUserRole = userDoc.data().role || "user";
-      else currentUserRole = "user";
-    } catch (e) {
-      console.warn("Error fetching user role:", e);
-      currentUserRole = "user";
-    }
-  }
+  if (userDoc.exists()) {
+  console.log("User doc found:", userDoc.data());
+  currentUserRole = userDoc.data().role || "user";
+} else {
+  console.log("No user doc found for UID:", user.uid);
+  currentUserRole = "user";
+}
+
   updateAuthUI();
 });
 
@@ -83,3 +81,4 @@ function updateAuthUI() {
     if (adminLink) adminLink.style.display = "none";
   }
 }
+
