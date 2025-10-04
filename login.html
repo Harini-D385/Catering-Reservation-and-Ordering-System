@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Login - Catering</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Login</h1>
+    <div id="global-message"></div>
+    <form id="login-form">
+      <input id="email" type="email" placeholder="Email" required />
+      <input id="password" type="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { showMessage, logAction } from "./app.js";
+
+    const form = document.getElementById("login-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await signInWithEmailAndPassword(auth, form.email.value, form.password.value);
+        await logAction("login");
+        showMessage("Login successful");
+        setTimeout(() => window.location.href = "index.html", 700);
+      } catch (err) {
+        showMessage(err.message, true);
+      }
+    });
+  </script>
+</body>
+</html>

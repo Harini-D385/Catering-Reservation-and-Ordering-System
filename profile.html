@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Profile - Catering</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a href="index.html">Home</a>
+      <a id="nav-profile" href="profile.html">Profile</a>
+      <a id="nav-admin" href="admin.html">Admin</a>
+      <a id="nav-cart" href="cart.html">Cart</a>
+      <a id="nav-login" href="login.html">Login</a>
+      <a id="nav-signup" href="signup.html">Signup</a>
+      <button id="nav-logout" style="display:none;" onclick="doSignOut()">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div id="global-message"></div>
+    <h1>Profile</h1>
+    <div id="profile-info">Loading...</div>
+  </main>
+
+  <script type="module" src="app.js"></script>
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { currentUser, currentUserRole, doSignOut } from "./app.js";
+    window.doSignOut = doSignOut;
+
+    async function render() {
+      const info = document.getElementById("profile-info");
+      await new Promise(r => setTimeout(r, 250));
+      if (!auth.currentUser) {
+        info.innerHTML = '<p>Please <a href="login.html">login</a>.</p>';
+        return;
+      }
+      const uDoc = await getDoc(doc(window.db || (await import("./firebase.js")).db, "users", auth.currentUser.uid));
+      const data = uDoc.exists() ? uDoc.data() : {};
+      info.innerHTML = `
+        <p><strong>Email:</strong> ${auth.currentUser.email}</p>
+        <p><strong>Name:</strong> ${data.name || "-"}</p>
+        <p><strong>Role:</strong> ${data.role || "user"}</p>
+        <p><button onclick="doSignOut()">Logout</button></p>
+      `;
+    }
+    document.addEventListener("DOMContentLoaded", render);
+  </script>
+</body>
+</html>

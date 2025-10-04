@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Signup - Catering</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Sign Up</h1>
+    <div id="global-message"></div>
+    <form id="signup-form">
+      <input id="name" type="text" placeholder="Full name" required />
+      <input id="email" type="email" placeholder="Email" required />
+      <input id="password" type="password" placeholder="Password (6+ chars)" required minlength="6" />
+      <button type="submit">Create account</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Login</a></p>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { showMessage, logAction } from "./app.js";
+
+    const form = document.getElementById("signup-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const name = form.name.value.trim();
+        const email = form.email.value.trim();
+        const password = form.password.value;
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        // create user doc in Firestore with role 'user'
+        await setDoc(doc(db, "users", cred.user.uid), {
+          name, email, role: "user", createdAt: serverTimestamp()
+        });
+        await logAction("signup");
+        showMessage("Account created!");
+        setTimeout(()=> window.location.href = "index.html", 800);
+      } catch (err) {
+        showMessage(err.message, true);
+      }
+    });
+  </script>
+</body>
+</html>
